@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>DEMO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div id="github"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>(window.jQuery||document.write("\u003Cscript src=\u0022\/lib\/jquery\/dist\/jquery.min.js\u0022\u003E\u003C\/script\u003E"));</script>
+<script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.js"></script>
+<script>
+        function createRepoCard(i, l, n, d, u) {
+            var html = '<div class="card">';
+            html += '<div class="card-block">';
+            html += '<h2 class="card-title" style="font-family: monospace;">' + n + '</h2>';
+            html += '<p class="card-text" style="text-align: center">' + (d || 'Nessuna descrizione') + '</p>';
+            html += '<a href="' + u + '" target="_blank" class="btn btn-secondary"><i class="fa fa-github"></i> Go to Github</a>';
+            html += '</div></div>';
+            return html;
+        };
+        $(function () {
+            // ###########################################
+            // CHANGE THIS TO YOUR USERNAME
+            // #######################################
+            var username = "TrinTragula";
+            $('.nav-link a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            })
+
+            $.ajax({
+                url: "https://api.github.com/users/" + username + "/repos",
+                method: "GET",
+                success: function (json) {
+                    var groupedByLanguage = json.reduce(function (p, c) {
+                        if (!p[c.language]) p[c.language] = [];
+                        p[c.language].push(c);
+                        return p;
+                    }, {});
+                    var html = '<div class="card text-center"><div class="card-header"><i class="fa fa-2x fa-github"></i>';
+                    html += '<ul class="nav nav-tabs card-header-tabs" role="tablist">';
+                    for (var index in groupedByLanguage) {
+                        html += '<li class="nav-item">';
+                        html += '<a style="font-family: monospace;" class="nav-link ' + (index == 'C#' ? 'active' : '') + '" data-toggle="tab" href="#' + index.replace("#", "sharp") + '" role="tab">' + index + '</a></li>';
+                    }
+                    html += '</div></ul><div class="tab-content">';
+                    for (var index in groupedByLanguage) {
+                        var repos = groupedByLanguage[index];
+                        html += '<div class="tab-pane" id="' + index.replace("#", "sharp") + '" role="tabpanel">';
+                        for (var i in repos) {
+                            var repo = repos[i];
+                            console.log(repo);
+                            if (!repo.fork) {
+                                var url = repo.svn_url;
+                                var name = repo.name;
+                                var desc = repo.description;
+                                var card = createRepoCard(i, index, name, desc, url);
+                                html += card;
+                            }
+                        }
+                        html += '</div>';
+                    }
+                    html += '</div></div>';
+                    $("#github").append(html);
+                    $("#Csharp").tab('show');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
